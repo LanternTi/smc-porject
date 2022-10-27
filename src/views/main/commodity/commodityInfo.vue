@@ -20,21 +20,26 @@ import { VxeGridProps, VxeGridInstance } from 'vxe-table'
 import { allCommodity, deleteComm, addComm, updateComm } from '@/api/commodity'
 import XEUtils from 'xe-utils'
 
-let autoQuery = ({ row }) => {
-    let url = ' https://www.mxnzp.com/api/barcode/goods/details?barcode=' + row.cBarcodes + '&app_id=vebhrimemnisnjcm&app_secret=V2ZHN3k3WFBhbnp0cWZWRE03eEVCZz09'
-    axios.get(url)
-        .then(res => {
-            if (res.data.code == 1) {
-                row.cname = res.data.data.goodsName
-                row.cprice = res.data.data.price
-                row.cbrand = res.data.data.brand
-                row.csupplier = res.data.data.supplier
-                row.cSpecifications = res.data.data.standard
-                row.createDate = new Date
-            } else {
-                ElMessage.error('该商品暂未收录')
-            }
-        })
+let cBarcodesLan = ref(null)
+let autoQuery = async ({ row }, value) => {
+    if (value.keyCode === 13) {
+        cBarcodesLan.value = value.target._value
+        let url = 'https://www.mxnzp.com/api/barcode/goods/details?barcode=' + cBarcodesLan.value + '&app_id=vebhrimemnisnjcm&app_secret=V2ZHN3k3WFBhbnp0cWZWRE03eEVCZz09'
+        axios.get(url)
+            .then(res => {
+                if (res.data.code == 1) {
+                    row.cname = res.data.data.goodsName
+                    row.cprice = res.data.data.price
+                    row.cbrand = res.data.data.brand
+                    row.csupplier = res.data.data.supplier
+                    row.cSpecifications = res.data.data.standard
+                    row.createDate = new Date
+                } else {
+                    ElMessage.error('该商品暂未收录')
+                }
+            })
+    }
+
     return 0
 }
 const xGrid = ref<VxeGridInstance>()
@@ -91,23 +96,32 @@ const gridOptions = reactive<VxeGridProps>({
         {
             field: 'cPurchaseprice', title: '商品进价', editRender: { name: 'input', attrs: { placeholder: '请输入商品进价' } },
             formatter({ cellValue }) {
-                return cellValue ? `￥${XEUtils.commafy(XEUtils.toNumber(cellValue))}` : ''
+                return cellValue ? `￥${XEUtils.commafy(XEUtils.toNumber(cellValue), {
+                    digits: 2,
+                    round: false
+                })}` : ''
             }
         },
         {
             field: 'cprice', title: '零售价', editRender: { name: 'input', attrs: { placeholder: '请输入零售价' } },
             formatter({ cellValue }) {
-                return cellValue ? `￥${XEUtils.commafy(XEUtils.toNumber(cellValue))}` : ''
+                return cellValue ? `￥${XEUtils.commafy(XEUtils.toNumber(cellValue), {
+                    digits: 2,
+                    round: false
+                })}` : ''
             }
         },
         {
             field: 'cvipprice', title: '会员价', editRender: { name: 'input', attrs: { placeholder: '请输入会员价' } }, formatter({ cellValue }) {
-                return cellValue ? `￥${XEUtils.commafy(XEUtils.toNumber(cellValue))}` : ''
+                return cellValue ? `￥${XEUtils.commafy(XEUtils.toNumber(cellValue), {
+                    digits: 2,
+                    round: false
+                })}` : ''
             }
         },
         { field: 'createDate', title: '创建时间', editRender: { name: '$input', props: { type: 'date' }, attrs: { placeholder: '请输入创建时间' } } },
         { field: 'cremark', title: '商品备注', editRender: { name: 'input', attrs: { placeholder: '请输入商品备注' } } },
-        { field: 'cBarcodes', title: '商品条码', editRender: { name: 'input', attrs: { placeholder: '请输入商品条码' }, events: { blur: autoQuery } } },
+        { field: 'cBarcodes', title: '商品条码', editRender: { name: 'input', attrs: { placeholder: '请输入商品条码' }, events: { keydown: autoQuery } } },
         { field: 'cmadein', title: '产地', editRender: { name: 'input', attrs: { placeholder: '请输入产地' } } },
         { field: 'csupplier', title: '厂商', editRender: { name: 'input', attrs: { placeholder: '请输入厂商' } } },
         { field: 'cbrand', title: '品牌', editRender: { name: 'input', attrs: { placeholder: '请输入品牌' } } }
