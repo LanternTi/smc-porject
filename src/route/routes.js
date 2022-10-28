@@ -13,6 +13,7 @@ const routes = [
             { path: "/faceAdd", component: () => import('views/main/personalInfo/faceAdd.vue') },
             { path: "/pwdUpdate", component: () => import('views/main/personalInfo/pwdUpdate.vue') },
             { path: "/commodityInfo", component: () => import('views/main/commodity/commodityInfo.vue') },
+            { path: "/commodityStock", component: () => import('views/main/commodity/commodityStock.vue') },
             { path: "/home", redirect: '/default' }
         ]
     },

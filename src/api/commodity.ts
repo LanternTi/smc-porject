@@ -31,3 +31,35 @@ export function updateComm(data?: any) {
         params: data
     })
 }
+
+//查询库存
+export function selectLikeAll(data?: any) {
+    return request.get({
+        url: 'stock/selectLikeAll',
+        params: data
+    })
+}
+
+//修改库存数量
+export function updateScount(data?: any) {
+    return request.post({
+        url: 'stock/update',
+        data: data
+    })
+}
+
+//增加库存商品
+export function addStock(data?: any) {
+    return request.post({
+        url: 'stock/insert',
+        params: data
+    })
+}
+
+//查询所有商品名称
+export function selName(data?: any) {
+    return request.get({
+        url: 'comm/selName',
+        params: data
+    })
+}

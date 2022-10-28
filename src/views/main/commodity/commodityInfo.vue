@@ -15,16 +15,15 @@
 
 <script setup lang="ts">
 import axios from 'axios'
-import { reactive, ref } from 'vue';
+import { reactive, ref } from 'vue'
 import { VxeGridProps, VxeGridInstance } from 'vxe-table'
 import { allCommodity, deleteComm, addComm, updateComm } from '@/api/commodity'
 import XEUtils from 'xe-utils'
 
-let cBarcodesLan = ref(null)
+let url = ''
 let autoQuery = async ({ row }, value) => {
     if (value.keyCode === 13) {
-        cBarcodesLan.value = value.target._value
-        let url = 'https://www.mxnzp.com/api/barcode/goods/details?barcode=' + cBarcodesLan.value + '&app_id=vebhrimemnisnjcm&app_secret=V2ZHN3k3WFBhbnp0cWZWRE03eEVCZz09'
+        url = 'https://www.mxnzp.com/api/barcode/goods/details?barcode=' + row.cBarcodes + '&app_id=vebhrimemnisnjcm&app_secret=V2ZHN3k3WFBhbnp0cWZWRE03eEVCZz09'
         axios.get(url)
             .then(res => {
                 if (res.data.code == 1) {
@@ -39,7 +38,6 @@ let autoQuery = async ({ row }, value) => {
                 }
             })
     }
-
     return 0
 }
 const xGrid = ref<VxeGridInstance>()
@@ -121,7 +119,7 @@ const gridOptions = reactive<VxeGridProps>({
         },
         { field: 'createDate', title: '创建时间', editRender: { name: '$input', props: { type: 'date' }, attrs: { placeholder: '请输入创建时间' } } },
         { field: 'cremark', title: '商品备注', editRender: { name: 'input', attrs: { placeholder: '请输入商品备注' } } },
-        { field: 'cBarcodes', title: '商品条码', editRender: { name: 'input', attrs: { placeholder: '请输入商品条码' }, events: { keydown: autoQuery } } },
+        { field: 'cBarcodes', title: '商品条码', editRender: { name: 'input', attrs: { placeholder: '请输入商品条码' }, immediate: true, events: { keydown: autoQuery } } },
         { field: 'cmadein', title: '产地', editRender: { name: 'input', attrs: { placeholder: '请输入产地' } } },
         { field: 'csupplier', title: '厂商', editRender: { name: 'input', attrs: { placeholder: '请输入厂商' } } },
         { field: 'cbrand', title: '品牌', editRender: { name: 'input', attrs: { placeholder: '请输入品牌' } } }
@@ -155,7 +153,6 @@ const gridOptions = reactive<VxeGridProps>({
                 return deleteComm(body.removeRecords[0].cid)
             },
             save: ({ body }) => {
-                console.log(body.updateRecords.length);
                 if (body.updateRecords.length != 0) {
                     return updateComm(body.updateRecords[0])
                 } if (body.insertRecords.length != 0) {

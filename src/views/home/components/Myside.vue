@@ -12,7 +12,7 @@
                 <span>商品管理</span>
             </template>
             <el-menu-item index="commodityInfo">商品信息管理</el-menu-item>
-            <el-menu-item index="1-2">商品库存管理</el-menu-item>
+            <el-menu-item index="commodityStock">商品库存管理</el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="2">
             <template #title>
