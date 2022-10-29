@@ -52,7 +52,7 @@ export function updateScount(data?: any) {
 export function addStock(data?: any) {
     return request.post({
         url: 'stock/insert',
-        params: data
+        data: data
     })
 }
 
