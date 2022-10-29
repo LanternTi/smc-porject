@@ -15,6 +15,7 @@ const routes = [
             { path: "/commodityInfo", component: () => import('views/main/commodity/commodityInfo.vue') },
             { path: "/commodityStock", component: () => import('views/main/commodity/commodityStock.vue') },
             { path: "/orderQuery", component: () => import('views/main/order/orderQuery.vue') },
+            { path: "/customerInfo", component: () => import('views/main/customer/customerInfo.vue') },
             { path: "/home", redirect: '/default' }
         ]
     },

@@ -55,7 +55,7 @@ const gridOptions = reactive<VxeGridProps>({
                     ], props: { placeholder: '请选择订单状态' }
                 }
             },
-            { span: 24, align: 'center', collapseNode: true, itemRender: { name: '$buttons', children: [{ props: { type: 'submit', content: '查询', status: 'primary' } }, { props: { type: 'reset', content: '重置' } }] } }
+            { span: 24, align: 'center', itemRender: { name: '$buttons', children: [{ props: { type: 'submit', content: '查询', status: 'primary' } }, { props: { type: 'reset', content: '重置' } }] } }
         ]
     },
     toolbarConfig: {
@@ -68,11 +68,18 @@ const gridOptions = reactive<VxeGridProps>({
         custom: true
     },
     columns: [
-        { type: 'checkbox', width: 50 },
         { field: 'oid', title: '订单编号' },
         { field: 'user.name', title: '客户姓名' },
         { field: 'user.phone', title: '客户电话' },
-        { field: 'money', title: '订单金额', editRender: { name: '$input', attrs: { placeholder: '请输入订单金额' }, props: { type: 'integer' }, } },
+        {
+            field: 'money', title: '订单金额', formatter({ cellValue }) {
+                return cellValue ? `￥${XEUtils.commafy(XEUtils.toNumber(cellValue), {
+                    digits: 2,
+                    round: false
+                })}` : ''
+            },
+            editRender: { name: '$input', attrs: { placeholder: '请输入订单金额' }, props: { type: 'integer' }, }
+        },
         {
             field: 'status', title: '订单状态', editRender: {
                 name: '$select', options: [

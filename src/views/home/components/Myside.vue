@@ -31,7 +31,7 @@
                 </el-icon>
                 <span>客户管理</span>
             </template>
-            <el-menu-item index="1-1">客户资源管理</el-menu-item>
+            <el-menu-item index="customerInfo">客户资源管理</el-menu-item>
             <el-menu-item index="1-2">会员管理</el-menu-item>
             <el-menu-item index="1-3">会员关怀</el-menu-item>
         </el-sub-menu>
