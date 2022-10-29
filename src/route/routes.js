@@ -14,6 +14,7 @@ const routes = [
             { path: "/pwdUpdate", component: () => import('views/main/personalInfo/pwdUpdate.vue') },
             { path: "/commodityInfo", component: () => import('views/main/commodity/commodityInfo.vue') },
             { path: "/commodityStock", component: () => import('views/main/commodity/commodityStock.vue') },
+            { path: "/orderQuery", component: () => import('views/main/order/orderQuery.vue') },
             { path: "/home", redirect: '/default' }
         ]
     },
