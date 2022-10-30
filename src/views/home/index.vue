@@ -25,7 +25,6 @@ import { ShoppingTrolley } from '@element-plus/icons-vue'
 import Myside from './components/Myside.vue';
 import NavBar from './components/NavBar.vue';
 import { useRouter } from 'vue-router'
-import { ref } from 'vue';
 
 const router = useRouter()
 const toShop = () => {

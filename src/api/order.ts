@@ -15,3 +15,11 @@ export function updataOrder(data?: any) {
         data: data
     })
 }
+
+//订单结算
+export function addOrderOver(data?: any) {
+    return request.post({
+        url: 'order/insert',
+        data: data
+    })
+}

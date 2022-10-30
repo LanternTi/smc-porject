@@ -63,3 +63,11 @@ export function selName(data?: any) {
         params: data
     })
 }
+
+//根据条码查商品
+export function selByBarcodes(data?: any) {
+    return request.get({
+        url: 'comm/selectByCBarcodes',
+        params: data
+    })
+}
