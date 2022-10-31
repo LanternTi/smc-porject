@@ -19,6 +19,10 @@ import { VxeGridProps, VxeGridInstance } from 'vxe-table'
 import { getAllOrder, updataOrder } from '@/api/order'
 import XEUtils from 'xe-utils'
 
+const orderInfo = ({ row }) => {
+
+}
+
 const xGrid = ref<VxeGridInstance>()
 const gridOptions = reactive<VxeGridProps>({
     border: true,
@@ -88,7 +92,8 @@ const gridOptions = reactive<VxeGridProps>({
                     { label: '已取消', value: 2 }
                 ]
             }
-        }
+        },
+        { title: '操作', width: 100, cellRender: { name: '$button', props: { content: '订单详情', status: "success", round: true }, events: { click: orderInfo } } }
     ],
     proxyConfig: {
         form: true,
