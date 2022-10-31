@@ -31,3 +31,19 @@ export function updatePwd(id: number, password: string) {
         params: { id, password }
     })
 }
+
+//查询所有员工
+export function findAll(data?:any){
+    return request.get({
+        url:'emp/select',
+        params:data
+    })
+}
+
+//修改
+export function updateByid(data?:any){
+    return request.put({
+        url:'emp/update',
+        params:data
+    })
+}
