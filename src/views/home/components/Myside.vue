@@ -45,13 +45,13 @@
             <el-menu-item index="/pwdUpdate">密码修改</el-menu-item>
             <el-menu-item index="/faceAdd">人脸注册</el-menu-item>
         </el-sub-menu>
-        <el-menu-item index="5">
+        <el-menu-item index="/employeeInfo">
             <el-icon>
                 <User />
             </el-icon>
             员工管理
         </el-menu-item>
-        <el-menu-item index="6">
+        <el-menu-item index="/activityInfo">
             <el-icon>
                 <Calendar />
             </el-icon>
