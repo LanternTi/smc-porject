@@ -4,5 +4,4 @@ declare global {
   const ElImage: typeof import('element-plus/es')['ElImage']
   const ElMessage: typeof import('element-plus/es')['ElMessage']
   const ElMessageBox: typeof import('element-plus/es')['ElMessageBox']
-  const ElSwitch: typeof import('element-plus/es')['ElSwitch']
 }

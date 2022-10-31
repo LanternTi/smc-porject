@@ -7,22 +7,55 @@
             <div class="padding-box" style="box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1)">
                 <vxe-grid ref='xGrid' v-bind="gridOptions" style="margin-left: 20px;
     margin-right: 20px;">
+
                 </vxe-grid>
+                <vxe-modal v-model="model" width="600">
+                    <template #title>
+                        <span>订单详情</span>
+                    </template>
+                    <template #default>
+                        <vxe-table border show-header-overflow show-overflow :row-config="{ isHover: true }"
+                            :data="tableData">
+                            <vxe-column field="oid" title="订单编号"></vxe-column>
+                            <vxe-column field="commodity.cname" title="商品名称"></vxe-column>
+                            <vxe-column field="commodity.cprice" title="商品价格" :formatter="formatterNum"></vxe-column>
+                            <vxe-column field="commodity.cbrand" title="品牌"></vxe-column>
+                            <vxe-column field="commodity.cCompany" title="单位"></vxe-column>
+                            <vxe-column field="count" title="数量"></vxe-column>
+                        </vxe-table>
+                    </template>
+                </vxe-modal>
             </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import axios from 'axios'
 import { reactive, ref } from 'vue'
-import { VxeGridProps, VxeGridInstance } from 'vxe-table'
+import { VxeGridProps, VxeGridInstance, VxeColumnPropTypes } from 'vxe-table'
 import { getAllOrder, updataOrder } from '@/api/order'
 import XEUtils from 'xe-utils'
 
 const orderInfo = ({ row }) => {
-
+    model.value = true
+    axios.get('http://127.0.0.1:8080/api/order/findAll', {
+        params: {
+            oid: row.oid
+        }
+    })
+        .then(res => {
+            tableData.value = res.data.data
+        })
 }
-
+const formatterNum: VxeColumnPropTypes.Formatter = ({ cellValue }) => {
+    return cellValue ? `￥${XEUtils.commafy(XEUtils.toNumber(cellValue), {
+        digits: 2,
+        round: false
+    })}` : ''
+}
+let model = ref(false)
+let tableData = ref([])
 const xGrid = ref<VxeGridInstance>()
 const gridOptions = reactive<VxeGridProps>({
     border: true,

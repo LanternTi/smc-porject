@@ -23,3 +23,11 @@ export function addOrderOver(data?: any) {
         data: data
     })
 }
+
+//查看订单详情
+export function getOrderInfo(data?: any) {
+    return request.get({
+        url: 'order/findAll',
+        params: data
+    })
+}
