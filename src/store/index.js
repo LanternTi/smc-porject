@@ -9,7 +9,7 @@ import { reactive } from 'vue'
 export const useMainStore = defineStore(
     'main',
     () => {
-        var employee = reactive({ id: null, name: null, account: null, password: null, job: null, face: null, phone: null, birthday: null })
+        var employee = reactive({ id: null, name: null, account: null, password: null, job: null, face: null, phone: null, birthday: null, groupId: null })
         return { employee }
     },
     {

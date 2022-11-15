@@ -46,6 +46,7 @@ import { CirclePlus, Remove } from '@element-plus/icons-vue'
 import { VxeGridProps, VxeGridInstance } from 'vxe-table'
 import { useMainStore } from "@/store"
 import { storeToRefs } from 'pinia'
+import { md5 } from '@/utils/md5'
 import { addOrderOver } from '@/api/order'
 import XEUtils from 'xe-utils'
 
@@ -57,7 +58,11 @@ const orderId = computed(() => {
     return new Date().getTime() + orderCode
 })
 const orderCount = computed(() => {
-    return xGrid.value?.getRecordset().insertRecords.length
+    var count = 0
+    xGrid.value?.getRecordset().insertRecords.forEach(element => {
+        count += Number(element.count)
+    })
+    return count
 })
 const orderTotal = computed(() => {
     var total = 0
@@ -71,7 +76,7 @@ const orderTotal = computed(() => {
 })
 const form = computed(() => {
     let data = reactive({
-        order: { oid: '', money: 0, eid: 0 },
+        order: { oid: '', money: 0, eid: 0, status: 0 },
         user: { id: 0 },
         orderCommodities: []
     })
@@ -110,30 +115,54 @@ const constChange = ({ row }) => {
     row.sub_total = row.cprice * row.count
 }
 const orderOver = () => {
-    addOrderOver(form.value).then((res => {
-        if (res.success) {
-            axios.get('https://www.mxnzp.com/api/qrcode/create/single', {
-                params: {
-                    content: 'alipays://platformapi/startapp?appId=09999988&actionType=toAccount&goBack=NO&amount=' + form.value.order.money + '&userId=2088032814766131',
-                    type: 1,
-                    app_id: 'vebhrimemnisnjcm',
-                    app_secret: 'V2ZHN3k3WFBhbnp0cWZWRE03eEVCZz09'
-                }
-            })
-                .then(res => {
-                    ElMessageBox({
-                        title: '请扫码支付',
-                        message: () =>
-                            h(ElImage, {
-                                src: res.data.data.qrCodeBase64,
-                                fit: 'contain'
-                            }),
-                    })
-                })
-        } else {
-            ElMessage.error('订单提交出错')
+    axios.get('http://localhost:8081/createOrder', {
+        params: {
+            payId: form.value.order.oid,
+            type: 1,
+            price: 0.01,
+            sign: md5(form.value.order.oid + 1 + 0.01 + 'ee6e121b2a291b27792074bc23d5abc6')
         }
-    }))
+    })
+        .then(res => {
+            if (res.data.code == 1) {
+                axios.get('https://www.mxnzp.com/api/qrcode/create/single', {
+                    params: {
+                        content: res.data.data.payUrl,
+                        type: 1,
+                        app_id: 'vebhrimemnisnjcm',
+                        app_secret: 'V2ZHN3k3WFBhbnp0cWZWRE03eEVCZz09'
+                    }
+                })
+                    .then(res => {
+                        ElMessageBox({
+                            title: '请扫码支付',
+                            message: () =>
+                                h(ElImage, {
+                                    src: res.data.data.qrCodeBase64,
+                                    fit: 'contain'
+                                })
+                        })
+                    })
+                var interval = setInterval(function () {
+                    axios.get('http://localhost:8081/checkOrder', {
+                        params: {
+                            orderId: res.data.data.orderId
+                        }
+                    })
+                        .then(res => {
+                            if (res.data.code == 1) {
+                                clearInterval(interval)
+                                addOrderOver(form.value)
+                                ElMessageBox.close()
+                                ElMessage({
+                                    message: '支付成功',
+                                    type: 'success',
+                                })
+                            }
+                        })
+                }, 1000);
+            }
+        })
 }
 const emptyOrder = () => {
     xGrid.value?.remove()

@@ -33,17 +33,25 @@ export function updatePwd(id: number, password: string) {
 }
 
 //查询所有员工
-export function findAll(data?:any){
+export function findAll(data?: any) {
     return request.get({
-        url:'emp/select',
-        params:data
+        url: 'emp/select',
+        params: data
     })
 }
 
 //修改
-export function updateByid(data?:any){
+export function updateByid(data?: any) {
     return request.put({
-        url:'emp/update',
-        params:data
+        url: 'emp/update',
+        params: data
+    })
+}
+
+//员工人脸登录
+export function empFaceLogin(file: string, groupId: number) {
+    return request.post({
+        url: 'face/compareFace',
+        params: { file, groupId }
     })
 }

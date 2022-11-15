@@ -117,7 +117,6 @@ const drawImage = () => {
     thisVideo = document.getElementById("videoCamera")
     thisContext.drawImage(thisVideo, 0, 0, 300, 200)
     queryParams.imgSrc = thisCancas.toDataURL()
-    console.log(queryParams.imgSrc);
 }
 
 //清空画布

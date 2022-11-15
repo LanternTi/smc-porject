@@ -126,6 +126,7 @@ const gridOptions = reactive<VxeGridProps>({
                 ]
             }
         },
+        { field: 'overDate', title: '订单时间' },
         { title: '操作', width: 100, cellRender: { name: '$button', props: { content: '订单详情', status: "success", round: true }, events: { click: orderInfo } } }
     ],
     proxyConfig: {

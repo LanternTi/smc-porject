@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { VxeGridProps, VxeGridInstance } from 'vxe-table'
-import { getAllCustomer, addCustomer } from '@/api/customer'
+import { getAllCustomer, addCustomer, editCustomer } from '@/api/customer'
 
 const xGrid = ref<VxeGridInstance>()
 const gridOptions = reactive<VxeGridProps>({
@@ -110,7 +110,11 @@ const gridOptions = reactive<VxeGridProps>({
                 })
             },
             save: ({ body }) => {
-                return addCustomer(body.insertRecords[0])
+                if (body.insertRecords.length != 0) {
+                    return addCustomer(body.insertRecords[0])
+                } if (body.updateRecords.length != 0) {
+                    return editCustomer(body.updateRecords[0])
+                }
             }
         }
     },

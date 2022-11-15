@@ -6,59 +6,32 @@
                     <div class="avtar">
                         <div class="pic"><img src="/src/assets/login/T1.jpg" alt=""></div>
                     </div>
-                    <h1>Welcome Back!</h1>
+                    <div style="display: flex;flex-direction: column;margin-top: -30px;">
+                        <h1>超市收银系统</h1>
+                        <h2 style="margin-top: 20px;">欢迎登录</h2>
+                    </div>
                     <form class="form">
                         <div>
                             <i class="fa fa-address-card"></i>
-                            <input type="text" placeholder="Account" v-model="login_form.account">
+                            <input type="text" placeholder="账号" v-model="login_form.account">
                         </div>
                         <div>
                             <i class="fa fa-key"></i>
-                            <input type="password" placeholder="Password" v-model="login_form.password">
+                            <input type="password" placeholder="密码" v-model="login_form.password">
                         </div>
                         <div class="btn">
-                            <el-button type="primary" @click="login_btn" :loading="loading">login</el-button>
+                            <el-button type="primary" @click="login_btn" :loading="loading">登录</el-button>
                         </div>
                     </form>
                     <p class="btn-something">
-                        Don't have an account ? <span class="signupbtn" @click="siginupbtn">signup</span>
+                        切换人脸登录？ <span class="signupbtn" @click="siginupbtn">人脸登录</span>
                     </p>
                 </div>
             </div>
             <div class="box signup" ref="signup">
                 <div class="form-content">
-                    <div class="avtar">
-                        <div class="pic"><img src="/src/assets/login/T1.jpg" alt=""></div>
-                    </div>
-                    <h1>Let's get started</h1>
-                    <form class="form">
-                        <div>
-                            <i class="fa fa-address-card"></i>
-                            <input type="text" placeholder="Account" v-model="signup_form.account">
-                        </div>
-                        <div>
-                            <i class="fa fa-key"></i>
-                            <input type="password" placeholder="Password" v-model="signup_form.password">
-                        </div>
-                        <div>
-                            <i class="fa fa-phone"></i>
-                            <input type="tel" placeholder="Phone" v-model="signup_form.phone">
-                        </div>
-                        <div>
-                            <i class="fa fa-user"></i>
-                            <input type="text" placeholder="Name" v-model="signup_form.name">
-                        </div>
-                        <div>
-                            <i class="fa fa-calendar-plus-o"></i>
-                            <input type="date" placeholder="Birthday" v-model="signup_form.birthday">
-                        </div>
-                        <div class="btn">
-                            <el-button type="primary" @click="signup_btn" :loading="loading">signup</el-button>
-                        </div>
-                    </form>
-                    <p class="btn-something">
-                        Already have an account ? <span class="loginbtn" @click="loginbtn">login</span>
-                    </p>
+                    <video :width="videoWidth" :height="videoHeight" id="video" autoPlay></video>
+                    <canvas id="canvas"></canvas>
                 </div>
             </div>
         </div>
@@ -66,29 +39,25 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { nextTick, reactive, ref } from 'vue'
 import { useMainStore } from "@/store"
 import { useRouter } from 'vue-router'
-import { empLogin, empSignIn } from '@/api/employee'
+import { storeToRefs } from 'pinia'
+import { empLogin, empFaceLogin } from '@/api/employee'
+import axios from 'axios'
 
+const videoWidth = ref(200)
+const videoHeight = ref(200)
 const router = useRouter()
 const mainStore = useMainStore()
+const { employee } = storeToRefs(mainStore)
 const signup = ref(null)
 const login = ref(null)
 let loading = ref(false)
 let login_form = reactive({
     account: '',
     password: ''
-}
-)
-let signup_form = reactive({
-    account: '',
-    password: '',
-    phone: '',
-    name: '',
-    birthday: ''
-}
-)
+})
 
 let login_btn = async () => {
     if (login_form.account == '' || login_form.account == '') {
@@ -111,6 +80,7 @@ let login_btn = async () => {
                 state.employee.face = res.data.face
                 state.employee.phone = res.data.phone
                 state.employee.birthday = res.data.birthday
+                state.employee.groupId = res.data.groupId
             })
             setTimeout(() => {
                 router.push('/home')
@@ -124,29 +94,87 @@ let login_btn = async () => {
     })
 }
 
-let signup_btn = async () => {
-    for (let key in signup_form) {
-        if (signup_form[key] == '') {
-            ElMessage.error(key + '\t不能为空')
-            return
+const getCompetence = () => {
+    nextTick(() => {
+        if (navigator.mediaDevices === undefined) {
+            navigator.mediaDevices = {}
         }
-    }
-    loading.value = true
-    empSignIn(signup_form).then((res) => {
-        if (res.success) {
+
+        if (navigator.mediaDevices.getUserMedia === undefined) {
+            navigator.mediaDevices.getUserMedia = function (constraints) {
+                // 首先获取现存的getUserMedia(如果存在)
+                let getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia
+                if (!getUserMedia) {
+                    return Promise.reject(new Error("getUserMedia is not implemented in this browser"))
+                }
+                return new Promise(function (resolve, reject) {
+                    getUserMedia.call(navigator, constraints, resolve, reject);
+                })
+            }
+        }
+
+        const constraints = {
+            audio: false,
+            video: { width: videoWidth.value, height: videoHeight.value, transform: "scaleX(-1)" },
+        }
+
+        navigator.mediaDevices
+            .getUserMedia(constraints)
+            .then(function (stream) {
+                if ("srcObject" in document.getElementById("video")) {
+                    document.getElementById("video").srcObject = stream;
+                } else {
+                    document.getElementById("video").src = window.URL.createObjectURL(stream);
+                }
+                document.getElementById("video").onloadedmetadata = function (e) {
+                    document.getElementById("video").play();
+                }
+            })
+            .catch((err) => {
+                ElMessage.error("没有开启摄像头权限或浏览器版本不兼容");
+            })
+    })
+}
+const faceLogin = () => {
+    let thisCancas = document.getElementById("canvas")
+    let thisContext = thisCancas.getContext("2d")
+    let thisVideo = document.getElementById("video")
+    thisContext.drawImage(thisVideo, 0, 0, 200, 200)
+    empFaceLogin(thisCancas.toDataURL(), 3).then(res => {
+        if (res.data.similarValue > 80) {
+            axios.get('http://127.0.0.1:8080/api/emp/selectByName', {
+                params: {
+                    name: res.data.name
+                }
+            })
+                .then(res => {
+                    mainStore.$patch(state => {
+                        state.employee.id = res.data.data.id
+                        state.employee.name = res.data.data.name
+                        state.employee.password = res.data.data.password
+                        state.employee.account = res.data.data.account
+                        state.employee.job = res.data.data.job
+                        state.employee.face = res.data.data.face
+                        state.employee.phone = res.data.data.phone
+                        state.employee.birthday = res.data.data.birthday
+                        state.employee.groupId = res.data.data.groupId
+                    })
+                })
             ElMessage({
-                message: res.msg,
+                message: '认证成功',
                 type: 'success'
             })
-        } else {
-            ElMessage.error('注册失败')
+            setTimeout(() => {
+                thisVideo.srcObject.getTracks()[0].stop();
+                router.push('/home')
+            }, 3000)
         }
-        loading.value = false
     })
 }
 let siginupbtn = () => {
     login.value.style.transform = "rotateY(180deg)"
     signup.value.style.transform = "rotateY(0deg)";
+    setTimeout(faceLogin, 3000)
 }
 
 let loginbtn = () => {
@@ -154,6 +182,7 @@ let loginbtn = () => {
     signup.value.style.transform = "rotateY(-180deg)";
 }
 
+getCompetence()
 </script>
 
 <style src="@/assets/login/login.css"  scoped>

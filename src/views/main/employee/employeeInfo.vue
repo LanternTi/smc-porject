@@ -17,7 +17,7 @@
 import { reactive, ref } from 'vue'
 import { VxeGridProps, VxeGridInstance } from 'vxe-table'
 import { getAllCustomer, addCustomer } from '@/api/customer'
-import { findAll ,empSignIn,updateByid} from '@/api/employee'
+import { findAll, empSignIn, updateByid } from '@/api/employee'
 
 const xGrid = ref<VxeGridInstance>()
 const gridOptions = reactive<VxeGridProps>({
@@ -46,9 +46,9 @@ const gridOptions = reactive<VxeGridProps>({
         items: [
             { field: 'id', title: '员工ID', span: 8, itemRender: { name: '$input', props: { placeholder: '请输入员工姓名' } } },
             { field: 'name', title: '员工姓名', span: 8, itemRender: { name: '$input', props: { placeholder: '请输入员工姓名' } } },
-            { field: 'account', title: '员工账号', span: 8, folding: true, itemRender: { name: '$input', props: { placeholder: '请输入商品名称', type: 'text' } } },
-            { field: 'birthday', title: '生日', span: 8, folding: true, itemRender: { name: '$input', props: { placeholder: '请输入商品名称', type: 'date' } } },
-            { field: 'phone', title: '员工号码', span: 8, folding: true, itemRender: { name: '$input', props: { placeholder: '请输入商品名称', type: 'number' } } },
+            { field: 'account', title: '员工账号', span: 8, itemRender: { name: '$input', props: { placeholder: '请输入员工账号', type: 'text' } } },
+            { field: 'birthday', title: '生日', span: 8, folding: true, itemRender: { name: '$input', props: { placeholder: '请输入员工生日', type: 'date' } } },
+            { field: 'phone', title: '员工号码', span: 8, folding: true, itemRender: { name: '$input', props: { placeholder: '请输入员工号码', type: 'number' } } },
             { span: 24, align: 'center', collapseNode: true, itemRender: { name: '$buttons', children: [{ props: { type: 'submit', content: '查询', status: 'primary' } }, { props: { type: 'reset', content: '重置' } }] } }
         ]
     },
@@ -66,7 +66,23 @@ const gridOptions = reactive<VxeGridProps>({
         { field: 'id', title: '员工ID' },
         { field: 'name', title: '员工姓名', editRender: { name: 'input', props: { type: 'text' }, attrs: { placeholder: '请输入员工姓名' } } },
         { field: 'account', title: '员工账号', editRender: { name: '$input', props: { type: 'text' }, attrs: { placeholder: '员工账号' } } },
-        { field: 'job', title: '职位', editRender: { name: '$input', props: { type: 'text' }, attrs: { placeholder: '请输入职位' } } },
+        {
+            field: 'job', title: '职位', formatter({ cellValue }) {
+                if (cellValue == 0) {
+                    return '老板'
+                } else if (cellValue == 1) {
+                    return '收银员'
+                } else {
+                    return '系统管理员'
+                }
+            }, editRender: {
+                name: '$select', options: [
+                    { label: '老板', value: 0 },
+                    { label: '收银员', value: 1 },
+                    { label: '系统管理员', value: 2 }
+                ]
+            }
+        },
         { field: 'phone', title: '员工号码', editRender: { name: '$input', props: { type: 'number' }, attrs: { placeholder: '请输入员工生日' } } },
         { field: 'birthday', title: '员工生日', editRender: { name: '$input', props: { type: 'date' }, attrs: { placeholder: '请输入员工号码' } } }
     ],
@@ -97,7 +113,7 @@ const gridOptions = reactive<VxeGridProps>({
             },
             save: ({ body }) => {
                 if (body.updateRecords.length != 0) {
-                    return updateByid(body.updateRecords[0])  
+                    return updateByid(body.updateRecords[0])
                 } if (body.insertRecords.length != 0) {
                     return empSignIn(body.insertRecords[0])
                 }

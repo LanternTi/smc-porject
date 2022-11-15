@@ -15,3 +15,11 @@ export function addCustomer(data?: any) {
         params: data
     })
 }
+
+//修改客户
+export function editCustomer(data?: any) {
+    return request.put({
+        url: 'user/update',
+        params: data
+    })
+}

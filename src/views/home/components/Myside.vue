@@ -22,7 +22,7 @@
                 <span>订单管理</span>
             </template>
             <el-menu-item index="orderQuery">订单查询</el-menu-item>
-            <el-menu-item index="1-2">订单统计分析</el-menu-item>
+            <el-menu-item index="1-2" v-if="false">订单统计分析</el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="3">
             <template #title>
@@ -32,8 +32,8 @@
                 <span>客户管理</span>
             </template>
             <el-menu-item index="customerInfo">客户资源管理</el-menu-item>
-            <el-menu-item index="1-2">会员管理</el-menu-item>
-            <el-menu-item index="1-3">会员关怀</el-menu-item>
+            <el-menu-item index="1-2" v-if="false">会员管理</el-menu-item>
+            <el-menu-item index="1-3" v-if="false">会员关怀</el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="4">
             <template #title>
