@@ -18,6 +18,7 @@ const routes = [
             { path: "/customerInfo", component: () => import('views/main/customer/customerInfo.vue') },
             { path: "/employeeInfo", component: () => import('views/main/employee/employeeInfo.vue') },
             { path: "/activityInfo", component: () => import('views/main/activity/activityInfo.vue') },
+            { path: "/WaiMaiQuery", component: () => import('views/main/order/WaiMaiQuery.vue') },
             { path: "/home", redirect: '/default' }
         ]
     },

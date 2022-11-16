@@ -21,8 +21,9 @@
                 </el-icon>
                 <span>订单管理</span>
             </template>
-            <el-menu-item index="orderQuery">订单查询</el-menu-item>
+            <el-menu-item index="orderQuery">系统订单</el-menu-item>
             <el-menu-item index="1-2" v-if="false">订单统计分析</el-menu-item>
+            <el-menu-item index="WaiMaiQuery">外卖订单</el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="3">
             <template #title>
