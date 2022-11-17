@@ -13,6 +13,7 @@
             </template>
             <el-menu-item index="commodityInfo">商品信息管理</el-menu-item>
             <el-menu-item index="commodityStock">商品库存管理</el-menu-item>
+            <el-menu-item index="FenLei">商品分类管理</el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="2">
             <template #title>
