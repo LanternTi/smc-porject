@@ -203,8 +203,7 @@ const gridOptions = reactive<VxeGridProps>({
                         cvipprice: body.insertRecords[0].cvipprice,
                         sort: sort.value
                     })
-                    console.log(record)
-
+                    return addComm(record)
                 }
             }
         }

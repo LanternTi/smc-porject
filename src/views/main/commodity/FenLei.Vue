@@ -2,7 +2,7 @@
     <div>
         <div style="box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);padding-left: 1rem;">
             <el-descriptions title="分类管理">
-                <!-- <el-descriptions-item label="管理库存中的商品并预警"></el-descriptions-item> -->
+                <el-descriptions-item label="管理商品类别"></el-descriptions-item>
             </el-descriptions>
             <div class="padding-box" style="box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1)">
                 <vxe-grid ref='xGrid' v-bind="gridOptions" style="margin-left: 20px;

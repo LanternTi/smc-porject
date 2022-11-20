@@ -82,7 +82,8 @@ const gridOptions = reactive<VxeGridProps>({
         },
         { field: 'age', title: '客户年龄', editRender: { name: '$input', props: { type: 'number' }, attrs: { placeholder: '客户年龄' } } },
         { field: 'birthday', title: '客户生日', editRender: { name: '$input', props: { type: 'date' }, attrs: { placeholder: '请输入出生日期' } } },
-        { field: 'phone', title: '客户号码', editRender: { name: '$input', props: { type: 'number' }, attrs: { placeholder: '请输入客户号码' } } }
+        { field: 'phone', title: '客户号码', editRender: { name: '$input', props: { type: 'number' }, attrs: { placeholder: '请输入客户号码' } } },
+        { field: 'integral', title: '会员余额', editRender: { name: '$input', props: { type: 'number' } } }
     ],
     proxyConfig: {
         form: true,

@@ -1,7 +1,7 @@
 <template>
     <div class="shop_body">
         <div id="ewm">
-            <el-input v-model="qrCode" size="large" placeholder="请扫描商品条形码" @change="addOrder">
+            <el-input ref="codeInput" v-model="qrCode" size="large" placeholder="请扫描商品条形码" @change="addOrder">
                 <template #prepend><i class="fa fa-qrcode fa-2x" aria-hidden="true"></i></template>
             </el-input>
         </div>
@@ -48,8 +48,9 @@ import { storeToRefs } from 'pinia'
 import { md5 } from '@/utils/md5'
 import { addOrderOver } from '@/api/order'
 import XEUtils from 'xe-utils'
-import { ElImage, ElMessage, ElMessageBox } from 'element-plus'
 
+let commList = ref([])
+let codeInput = ref(null)
 let qrCode = ref()
 const orderId = computed(() => {
     var orderCode = '';
@@ -93,7 +94,7 @@ const form = computed(() => {
     return data
 })
 
-const constChange = ({ row }) => {
+const constChange = (row) => {
     row.sub_total = row.cprice * row.count
 }
 const orderOver = () => {
@@ -101,8 +102,8 @@ const orderOver = () => {
         params: {
             payId: form.value.order.oid,
             type: 1,
-            price: 0.01,
-            sign: md5(form.value.order.oid + 1 + 0.01 + 'ee6e121b2a291b27792074bc23d5abc6')
+            price: Number(orderTotal.value.replace('￥', '')),
+            sign: md5(form.value.order.oid + 1 + Number(orderTotal.value.replace('￥', '')) + 'ee6e121b2a291b27792074bc23d5abc6')
         }
     })
         .then(res => {
@@ -148,6 +149,7 @@ const orderOver = () => {
 }
 const emptyOrder = () => {
     xGrid.value?.remove()
+    commList.value.length = 0
 }
 
 const mainStore = useMainStore()
@@ -174,7 +176,7 @@ const gridOptions = reactive<VxeGridProps>({
         { type: 'checkbox', width: 50 },
         { field: 'cid', visible: false },
         { field: 'cname', title: '商品名称' },
-        { field: 'cBarcodes', title: '商品条码', editRender: { name: '$input', props: { type: 'number' }, immediate: true } },
+        { field: 'cBarcodes', title: '商品条码' },
         {
             field: 'cprice', title: '商品价格', formatter({ cellValue }) {
                 return cellValue ? `￥${XEUtils.commafy(XEUtils.toNumber(cellValue), {
@@ -183,7 +185,7 @@ const gridOptions = reactive<VxeGridProps>({
                 })}` : ''
             }
         },
-        { field: 'count', title: '数量', editRender: { name: '$input', props: { type: 'integer' }, immediate: true, events: { change: constChange }, attrs: { placeholder: '请输入商品数量' } } },
+        { field: 'count', title: '数量', editRender: { name: '$input', props: { type: 'integer' }, immediate: true, attrs: { placeholder: '请输入商品数量' } } },
         {
             field: 'sub_total', title: '小计', formatter({ cellValue }) {
                 return cellValue ? `￥${XEUtils.commafy(XEUtils.toNumber(cellValue), {
@@ -199,26 +201,48 @@ const gridOptions = reactive<VxeGridProps>({
         showStatus: true
     }
 })
-const addOrder = () => {
-    xGrid.value?.commitProxy('insert_actived')
-    axios.get('http://127.0.0.1:8080/api/comm/selectByCBarcodes', {
-        params: {
-            cBarcodes: qrCode.value
-        }
-    })
-        .then(res => {
-            if (res.data.data != null) {
-                row.cid = res.data.data.cid
-                row.cname = res.data.data.cname
-                row.cprice = res.data.data.cprice
-            } else {
-                Object.keys(row).forEach(key => row[key] = null)
-                ElMessage.error('该商品暂未收录')
+const addOrder = (value) => {
+    if (xGrid.value?.getRecordset().insertRecords != null) {
+        xGrid.value?.getRecordset().insertRecords.forEach((element => {
+            commList.value.push(element.cBarcodes)
+        }))
+    }
+    if (commList.value.includes(value)) {
+        xGrid.value?.getRecordset().insertRecords.forEach((element => {
+            if (element.cBarcodes == value) {
+                element.count++
+                constChange(xGrid.value!.getEditRecord().row)
+            }
+        }))
+    } else {
+        axios.get('http://127.0.0.1:8080/api/comm/selectByCBarcodes', {
+            params: {
+                cBarcodes: value
             }
         })
+            .then(res => {
+                if (res.data.data != null) {
+                    xGrid.value?.commitProxy('insert_actived')
+                    setTimeout(() => {
+                        xGrid.value!.getEditRecord().row.cname = res.data.data.cname
+                        xGrid.value!.getEditRecord().row.cBarcodes = res.data.data.cBarcodes
+                        xGrid.value!.getEditRecord().row.cprice = res.data.data.cprice
+                        xGrid.value!.getEditRecord().row.count = 1
+                        constChange(xGrid.value!.getEditRecord().row)
+                    }, 100)
+                } else {
+                    ElMessage.error('该商品暂未收录')
+                }
+            })
+    }
+    qrCode.value = null
+    setTimeout(() => {
+        codeInput.value.focus()
+    }, 500);
 }
 const removeOrder = () => {
     xGrid.value?.commitProxy('remove')
+    commList.value.length = 0
 }
 </script>
 

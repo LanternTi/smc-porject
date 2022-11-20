@@ -7,7 +7,13 @@
             <div class="padding-box" style="box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1)">
                 <vxe-grid ref='xGrid' v-bind="gridOptions" style="margin-left: 20px;
     margin-right: 20px;">
-
+                    <template #operate="{ row }">
+                        <vxe-button v-if="row.status == 2" content="派送" size="mini" status="primary" round></vxe-button>
+                        <vxe-button v-if="row.status == 3" content="送达" size="mini" status="success" round></vxe-button>
+                        <vxe-button v-if="row.status == 4 || row.status == 5" content="详情" size="mini" status="warning"
+                            round>
+                        </vxe-button>
+                    </template>
                 </vxe-grid>
                 <vxe-modal v-model="model" width="600">
                     <template #title>
@@ -37,17 +43,6 @@ import { VxeGridProps, VxeGridInstance, VxeColumnPropTypes } from 'vxe-table'
 import { getAllOrder } from '@/api/orders'
 import XEUtils from 'xe-utils'
 
-const orderInfo = ({ row }) => {
-    model.value = true
-    axios.get('http://127.0.0.1:8080/api/order/findAll', {
-        params: {
-            oid: row.oid
-        }
-    })
-        .then(res => {
-            tableData.value = res.data.data
-        })
-}
 const formatterNum: VxeColumnPropTypes.Formatter = ({ cellValue }) => {
     return cellValue ? `￥${XEUtils.commafy(XEUtils.toNumber(cellValue), {
         digits: 2,
@@ -99,17 +94,19 @@ const gridOptions = reactive<VxeGridProps>({
         { field: 'phone', title: '手机号' },
         { field: 'address', title: '地址' },
         { field: 'orderTime', title: '下单时间' },
-        { field: 'status', title: '状态', formatter({ cellValue }) {
-                if(cellValue==2){
+        {
+            field: 'status', title: '状态', formatter({ cellValue }) {
+                if (cellValue == 2) {
                     return '待派送'
-                }else if(cellValue==3){
+                } else if (cellValue == 3) {
                     return '已派送'
-                }else if(cellValue==4){
+                } else if (cellValue == 4) {
                     return '已送达'
-                }else if(cellValue==5){
+                } else if (cellValue == 5) {
                     return '已完成'
                 }
-            }, },
+            },
+        },
         {
             field: 'amount', title: '实收金额', formatter({ cellValue }) {
                 return cellValue ? `￥${XEUtils.commafy(XEUtils.toNumber(cellValue), {
@@ -119,7 +116,7 @@ const gridOptions = reactive<VxeGridProps>({
             },
             editRender: { name: '$input', attrs: { placeholder: '请输入订单金额' }, props: { type: 'integer' }, }
         },
-        { title: '操作', width: 100, cellRender: { name: '$button', props: { content: '订单详情', status: "success", round: true }, events: { click: orderInfo } } }
+        { title: '操作', width: 70, slots: { default: 'operate' } }
     ],
     proxyConfig: {
         form: true,
@@ -135,7 +132,6 @@ const gridOptions = reactive<VxeGridProps>({
                     setTimeout(() => {
                         var list: any[] = [];
                         getAllOrder(form).then((res: any) => {
-                            console.log(res);
                             list = res.data
                             resolve({
                                 page: {
@@ -146,9 +142,6 @@ const gridOptions = reactive<VxeGridProps>({
                         })
                     }, 1000)
                 })
-            },
-            save: ({ body }) => {
-                return updataOrder(body.updateRecords[0])
             }
         }
     },
