@@ -61,7 +61,7 @@ const gridOptions = reactive<VxeGridProps>({
     },
     toolbarConfig: {
         buttons: [
-            { code: 'insert_actived', name: '新增' },
+            { code: 'insert_actived', name: '新增', status: 'primary' },
             { code: 'save', name: '保存', status: 'success' }
         ],
         refresh: true,
@@ -98,7 +98,7 @@ const gridOptions = reactive<VxeGridProps>({
                     setTimeout(() => {
                         var list: any[] = [];
                         getAllCustomer(form).then((res: any) => {
-                            list = res.data
+                            list = res.data.splice(1)
                             resolve({
                                 page: {
                                     total: list.length

@@ -17,7 +17,7 @@
 import axios from 'axios'
 import { reactive, ref } from 'vue'
 import { VxeGridProps, VxeGridInstance } from 'vxe-table'
-import { getAllCate,deleteCate,addCate,updateCate } from '@/api/Category'
+import { getAllCate, deleteCate, addCate, updateCate } from '@/api/Category'
 import XEUtils from 'xe-utils'
 
 const xGrid = ref<VxeGridInstance>()
@@ -51,9 +51,9 @@ const gridOptions = reactive<VxeGridProps>({
     },
     toolbarConfig: {
         buttons: [
-            { code: 'insert_actived', name: '新增',status:'success' },
+            { code: 'insert_actived', name: '新增', status: 'primary' },
             { code: 'save', name: '保存', status: 'success' },
-            { code: 'delete', name: '删除', status: 'success' }
+            { code: 'delete', name: '删除', status: 'danger' }
         ],
         refresh: true,
         print: true,
@@ -100,7 +100,7 @@ const gridOptions = reactive<VxeGridProps>({
                     return addCate(body.insertRecords[0])
                 }
             },
-            delete:({ body }) => {
+            delete: ({ body }) => {
                 return deleteCate(body.removeRecords[0].id)
             }
         }

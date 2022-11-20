@@ -47,14 +47,14 @@ const gridOptions = reactive<VxeGridProps>({
             { field: 'id', title: '员工ID', span: 8, itemRender: { name: '$input', props: { placeholder: '请输入员工姓名' } } },
             { field: 'name', title: '员工姓名', span: 8, itemRender: { name: '$input', props: { placeholder: '请输入员工姓名' } } },
             { field: 'account', title: '员工账号', span: 8, itemRender: { name: '$input', props: { placeholder: '请输入员工账号', type: 'text' } } },
-            { field: 'birthday', title: '生日', span: 8, folding: true, itemRender: { name: '$input', props: { placeholder: '请输入员工生日', type: 'date' } } },
-            { field: 'phone', title: '员工号码', span: 8, folding: true, itemRender: { name: '$input', props: { placeholder: '请输入员工号码', type: 'number' } } },
+            { field: 'birthday', title: '生日', span: 12, folding: true, itemRender: { name: '$input', props: { placeholder: '请输入员工生日', type: 'date' } } },
+            { field: 'phone', title: '员工号码', span: 12, folding: true, itemRender: { name: '$input', props: { placeholder: '请输入员工号码', type: 'number' } } },
             { span: 24, align: 'center', collapseNode: true, itemRender: { name: '$buttons', children: [{ props: { type: 'submit', content: '查询', status: 'primary' } }, { props: { type: 'reset', content: '重置' } }] } }
         ]
     },
     toolbarConfig: {
         buttons: [
-            { code: 'insert_actived', name: '新增' },
+            { code: 'insert_actived', name: '新增', status: 'primary' },
             { code: 'save', name: '保存', status: 'success' }
         ],
         refresh: true,

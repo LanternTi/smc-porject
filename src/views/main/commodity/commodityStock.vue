@@ -17,29 +17,9 @@
 import axios from 'axios'
 import { reactive, ref } from 'vue'
 import { VxeGridProps, VxeGridInstance } from 'vxe-table'
-import { selectLikeAll, updateScount, addStock } from '@/api/commodity'
+import { selectLikeAll, updateScount } from '@/api/commodity'
 import XEUtils from 'xe-utils'
 
-const getInfoByName = ({ row }, value) => {
-    axios.get('http://127.0.0.1:8080/api/comm/selectByCommodity', {
-        params: {
-            cname: value.value
-        }
-    })
-        .then(res => {
-            if (res.data.data != null) {
-                row.commodity.cid = res.data.data.cid
-                row.commodity.cCompany = res.data.data.cCompany
-                row.commodity.cPurchaseprice = res.data.data.cPurchaseprice
-                row.commodity.cprice = res.data.data.cprice
-                row.commodity.cvipprice = res.data.data.cvipprice
-                row.commodity.createDate = res.data.data.createDate
-            } else {
-                Object.keys(row).forEach(key => row[key] = null)
-                ElMessage.error('该商品暂未收录')
-            }
-        })
-}
 const xGrid = ref<VxeGridInstance>()
 const gridOptions = reactive<VxeGridProps>({
     border: true,
@@ -73,7 +53,6 @@ const gridOptions = reactive<VxeGridProps>({
     },
     toolbarConfig: {
         buttons: [
-            { code: 'insert_actived', name: '新增' },
             { code: 'save', name: '保存', status: 'success' }
         ],
         refresh: true,
@@ -85,28 +64,10 @@ const gridOptions = reactive<VxeGridProps>({
         { type: 'checkbox', width: 50 },
         { field: 'sid', title: '库存编号' },
         { field: 'commodity.cid', title: '商品编号', visible: false },
-        { field: 'commodity.cname', title: '商品名称', editRender: { name: '$input', attrs: { placeholder: '请输入商品名字' }, immediate: true, events: { blur: getInfoByName } } },
+        { field: 'commodity.cname', title: '商品名称' },
         { field: 'commodity.cCompany', title: '单位' },
         {
             field: 'commodity.cPurchaseprice', title: '商品进价',
-            formatter({ cellValue }) {
-                return cellValue ? `￥${XEUtils.commafy(XEUtils.toNumber(cellValue), {
-                    digits: 2,
-                    round: false
-                })}` : ''
-            }
-        },
-        {
-            field: 'commodity.cprice', title: '零售价',
-            formatter({ cellValue }) {
-                return cellValue ? `￥${XEUtils.commafy(XEUtils.toNumber(cellValue), {
-                    digits: 2,
-                    round: false
-                })}` : ''
-            }
-        },
-        {
-            field: 'commodity.cvipprice', title: '会员价',
             formatter({ cellValue }) {
                 return cellValue ? `￥${XEUtils.commafy(XEUtils.toNumber(cellValue), {
                     digits: 2,
@@ -143,11 +104,7 @@ const gridOptions = reactive<VxeGridProps>({
                 })
             },
             save: ({ body }) => {
-                if (body.updateRecords.length != 0) {
-                    return updateScount(body.updateRecords[0])
-                } if (body.insertRecords.length != 0) {
-                    return addStock(body.insertRecords[0])
-                }
+                return updateScount(body.updateRecords[0])
             }
         }
     },

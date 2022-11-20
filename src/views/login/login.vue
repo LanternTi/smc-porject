@@ -141,7 +141,7 @@ const faceLogin = () => {
     let thisVideo = document.getElementById("video")
     thisContext.drawImage(thisVideo, 0, 0, 200, 200)
     empFaceLogin(thisCancas.toDataURL(), 3).then(res => {
-        if (res.data.similarValue > 80) {
+        if (res.success) {
             axios.get('http://127.0.0.1:8080/api/emp/selectByName', {
                 params: {
                     name: res.data.name
@@ -168,6 +168,14 @@ const faceLogin = () => {
                 thisVideo.srcObject.getTracks()[0].stop();
                 router.push('/home')
             }, 3000)
+        } else if (res.success) {
+            ElMessage({
+                message: res.msg,
+                type: res.success
+            })
+            setTimeout(() => {
+                router.push('/login')
+            }, 2000)
         }
     })
 }

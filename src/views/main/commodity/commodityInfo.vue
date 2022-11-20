@@ -18,9 +18,14 @@ import axios from 'axios'
 import { reactive, ref } from 'vue'
 import { VxeGridProps, VxeGridInstance } from 'vxe-table'
 import { allCommodity, deleteComm, addComm, updateComm } from '@/api/commodity'
+import { getAllCate } from '@/api/Category'
 import XEUtils from 'xe-utils'
+import { ElMessage } from 'element-plus'
+import { random } from 'lodash'
 
+let comCategory = ref([])
 let url = ''
+let sort = ref()
 let autoQuery = async ({ row }, value) => {
     if (value.keyCode === 13) {
         url = 'https://www.mxnzp.com/api/barcode/goods/details?barcode=' + row.cBarcodes + '&app_id=vebhrimemnisnjcm&app_secret=V2ZHN3k3WFBhbnp0cWZWRE03eEVCZz09'
@@ -39,6 +44,17 @@ let autoQuery = async ({ row }, value) => {
             })
     }
     return 0
+}
+const comCategoryOut = () => {
+    getAllCate().then(res => {
+        res.data.forEach(element => {
+            comCategory.value.push({
+                value: element.id,
+                label: element.name,
+                sort: element.sort
+            })
+        })
+    })
 }
 const xGrid = ref<VxeGridInstance>()
 const gridOptions = reactive<VxeGridProps>({
@@ -76,8 +92,8 @@ const gridOptions = reactive<VxeGridProps>({
     },
     toolbarConfig: {
         buttons: [
-            { code: 'insert_actived', name: '新增' },
-            { code: 'delete', name: '直接删除' },
+            { code: 'insert_actived', name: '新增', status: 'primary' },
+            { code: 'delete', name: '直接删除', status: 'danger' },
             { code: 'save', name: '保存', status: 'success' }
         ],
         refresh: true,
@@ -90,6 +106,11 @@ const gridOptions = reactive<VxeGridProps>({
         { field: 'cid', title: '商品编号' },
         { field: 'cname', title: '商品名称', editRender: { name: 'input', attrs: { placeholder: '请输入商品名称' } } },
         { field: 'cSpecifications', title: '商品规格', editRender: { name: 'input', attrs: { placeholder: '请输入商品规格' } } },
+        {
+            field: 'ccategoryid', title: '类别', editRender: {
+                name: '$select', options: comCategory.value, props: { placeholder: '请选择商品类别' }
+            }
+        },
         { field: 'cCompany', title: '单位', editRender: { name: 'input', attrs: { placeholder: '请输入单位' } } },
         {
             field: 'cPurchaseprice', title: '商品进价', editRender: { name: 'input', attrs: { placeholder: '请输入商品进价' } },
@@ -156,7 +177,34 @@ const gridOptions = reactive<VxeGridProps>({
                 if (body.updateRecords.length != 0) {
                     return updateComm(body.updateRecords[0])
                 } if (body.insertRecords.length != 0) {
-                    return addComm(body.insertRecords[0])
+                    gridOptions.columns.forEach(element => {
+                        if (element.field == 'ccategoryid') {
+                            element.editRender.options.forEach(elements => {
+                                if (elements.value == body.insertRecords[0].ccategoryid) {
+                                    sort.value = elements.sort
+                                }
+                            });
+                        }
+                    })
+                    let record = reactive({
+                        cBarcodes: body.insertRecords[0].cBarcodes,
+                        cCompany: body.insertRecords[0].cCompany,
+                        cPurchaseprice: body.insertRecords[0].cPurchaseprice,
+                        cSpecifications: body.insertRecords[0].cSpecifications,
+                        cbrand: body.insertRecords[0].cbrand,
+                        ccategoryid: body.insertRecords[0].ccategoryid,
+                        cid: Math.round(Math.random() * 100000000),
+                        cmadein: body.insertRecords[0].cmadein,
+                        cname: body.insertRecords[0].cname,
+                        cprice: body.insertRecords[0].cprice,
+                        createDate: body.insertRecords[0].createDate,
+                        cremark: body.insertRecords[0].cremark,
+                        csupplier: body.insertRecords[0].csupplier,
+                        cvipprice: body.insertRecords[0].cvipprice,
+                        sort: sort.value
+                    })
+                    console.log(record)
+
                 }
             }
         }
@@ -167,8 +215,7 @@ const gridOptions = reactive<VxeGridProps>({
         showStatus: true
     }
 })
-
-
+comCategoryOut()
 </script>
 
 <style scoped>

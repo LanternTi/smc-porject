@@ -1,5 +1,10 @@
 <template>
     <div class="shop_body">
+        <div id="ewm">
+            <el-input v-model="qrCode" size="large" placeholder="请扫描商品条形码" @change="addOrder">
+                <template #prepend><i class="fa fa-qrcode fa-2x" aria-hidden="true"></i></template>
+            </el-input>
+        </div>
         <div class="shop_main">
             <div class="shop_list">
                 <vxe-grid ref='xGrid' v-bind="gridOptions" style="margin-left: 20px;
@@ -23,12 +28,6 @@
             </div>
             <div class="shop_toolbar">
                 <div class="tool_button">
-                    <el-icon @click="addOrder">
-                        <CirclePlus />
-                    </el-icon>
-                    <span class="i_text">添加商品</span>
-                </div>
-                <div class="tool_button">
                     <el-icon @click="removeOrder">
                         <Remove />
                     </el-icon>
@@ -42,14 +41,16 @@
 <script setup lang="ts">
 import axios from 'axios'
 import { reactive, ref, computed, h } from 'vue'
-import { CirclePlus, Remove } from '@element-plus/icons-vue'
+import { Remove } from '@element-plus/icons-vue'
 import { VxeGridProps, VxeGridInstance } from 'vxe-table'
 import { useMainStore } from "@/store"
 import { storeToRefs } from 'pinia'
 import { md5 } from '@/utils/md5'
 import { addOrderOver } from '@/api/order'
 import XEUtils from 'xe-utils'
+import { ElImage, ElMessage, ElMessageBox } from 'element-plus'
 
+let qrCode = ref()
 const orderId = computed(() => {
     var orderCode = '';
     for (var i = 0; i < 6; i++) {
@@ -92,25 +93,6 @@ const form = computed(() => {
     return data
 })
 
-const commQuery = ({ row }, $event) => {
-    if ($event.$event.keyCode === 13) {
-        axios.get('http://127.0.0.1:8080/api/comm/selectByCBarcodes', {
-            params: {
-                cBarcodes: row.cBarcodes
-            }
-        })
-            .then(res => {
-                if (res.data.data != null) {
-                    row.cid = res.data.data.cid
-                    row.cname = res.data.data.cname
-                    row.cprice = res.data.data.cprice
-                } else {
-                    Object.keys(row).forEach(key => row[key] = null)
-                    ElMessage.error('该商品暂未收录')
-                }
-            })
-    }
-}
 const constChange = ({ row }) => {
     row.sub_total = row.cprice * row.count
 }
@@ -192,15 +174,14 @@ const gridOptions = reactive<VxeGridProps>({
         { type: 'checkbox', width: 50 },
         { field: 'cid', visible: false },
         { field: 'cname', title: '商品名称' },
-        { field: 'cBarcodes', title: '商品条码', editRender: { name: '$input', props: { type: 'number' }, immediate: true, events: { keydown: commQuery } } },
+        { field: 'cBarcodes', title: '商品条码', editRender: { name: '$input', props: { type: 'number' }, immediate: true } },
         {
             field: 'cprice', title: '商品价格', formatter({ cellValue }) {
                 return cellValue ? `￥${XEUtils.commafy(XEUtils.toNumber(cellValue), {
                     digits: 2,
                     round: false
                 })}` : ''
-            },
-            editRender: { name: '$input' }
+            }
         },
         { field: 'count', title: '数量', editRender: { name: '$input', props: { type: 'integer' }, immediate: true, events: { change: constChange }, attrs: { placeholder: '请输入商品数量' } } },
         {
@@ -220,6 +201,21 @@ const gridOptions = reactive<VxeGridProps>({
 })
 const addOrder = () => {
     xGrid.value?.commitProxy('insert_actived')
+    axios.get('http://127.0.0.1:8080/api/comm/selectByCBarcodes', {
+        params: {
+            cBarcodes: qrCode.value
+        }
+    })
+        .then(res => {
+            if (res.data.data != null) {
+                row.cid = res.data.data.cid
+                row.cname = res.data.data.cname
+                row.cprice = res.data.data.cprice
+            } else {
+                Object.keys(row).forEach(key => row[key] = null)
+                ElMessage.error('该商品暂未收录')
+            }
+        })
 }
 const removeOrder = () => {
     xGrid.value?.commitProxy('remove')
@@ -234,7 +230,7 @@ const removeOrder = () => {
 }
 
 .shop_main {
-    padding: 100px;
+    padding-top: 100px;
     display: flex;
     justify-content: center;
 }
@@ -277,5 +273,13 @@ const removeOrder = () => {
     border-left-style: none;
     height: 150px;
     background-color: white;
+}
+
+#ewm {
+    width: 998px;
+    margin: auto;
+    left: -35px;
+    position: relative;
+    top: 80px;
 }
 </style>

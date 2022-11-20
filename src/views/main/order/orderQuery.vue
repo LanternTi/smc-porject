@@ -96,9 +96,6 @@ const gridOptions = reactive<VxeGridProps>({
         ]
     },
     toolbarConfig: {
-        buttons: [
-            { code: 'save', name: '保存', status: 'success' }
-        ],
         refresh: true,
         print: true,
         zoom: true,
@@ -107,23 +104,23 @@ const gridOptions = reactive<VxeGridProps>({
     columns: [
         { field: 'oid', title: '订单编号' },
         { field: 'user.name', title: '客户姓名' },
-        { field: 'user.phone', title: '客户电话' },
         {
             field: 'money', title: '订单金额', formatter({ cellValue }) {
                 return cellValue ? `￥${XEUtils.commafy(XEUtils.toNumber(cellValue), {
                     digits: 2,
                     round: false
                 })}` : ''
-            },
-            editRender: { name: '$input', attrs: { placeholder: '请输入订单金额' }, props: { type: 'integer' }, }
+            }
         },
         {
-            field: 'status', title: '订单状态', editRender: {
-                name: '$select', options: [
-                    { label: '已完成', value: 0 },
-                    { label: '待支付', value: 1 },
-                    { label: '已取消', value: 2 }
-                ]
+            field: 'status', title: '订单状态', formatter({ cellValue }) {
+                if (cellValue == 0) {
+                    return '已完成'
+                } else if (cellValue == 1) {
+                    return '待支付'
+                } else if (cellValue == 2) {
+                    return '已取消'
+                }
             }
         },
         { field: 'overDate', title: '订单时间' },

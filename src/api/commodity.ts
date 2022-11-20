@@ -48,14 +48,6 @@ export function updateScount(data?: any) {
     })
 }
 
-//增加库存商品
-export function addStock(data?: any) {
-    return request.post({
-        url: 'stock/insert',
-        data: data
-    })
-}
-
 //查询所有商品名称
 export function selName(data?: any) {
     return request.get({
