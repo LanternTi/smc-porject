@@ -100,10 +100,14 @@ const gridOptions = reactive<VxeGridProps>({
         { field: 'address', title: '地址' },
         { field: 'orderTime', title: '下单时间' },
         { field: 'status', title: '状态', formatter({ cellValue }) {
-                if(cellValue==3){
-                    return '已完成'
-                }else if(cellValue==4){
+                if(cellValue==2){
+                    return '待派送'
+                }else if(cellValue==3){
                     return '已派送'
+                }else if(cellValue==4){
+                    return '已送达'
+                }else if(cellValue==5){
+                    return '已完成'
                 }
             }, },
         {
