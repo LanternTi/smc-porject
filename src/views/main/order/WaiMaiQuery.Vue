@@ -8,10 +8,12 @@
                 <vxe-grid ref='xGrid' v-bind="gridOptions" style="margin-left: 20px;
     margin-right: 20px;">
                     <template #operate="{ row }">
-                        <vxe-button v-if="row.status == 2" content="派送" size="mini" status="primary" round></vxe-button>
-                        <vxe-button v-if="row.status == 3" content="送达" size="mini" status="success" round></vxe-button>
-                        <vxe-button v-if="row.status == 4 || row.status == 5" content="详情" size="mini" status="warning"
-                            round>
+                        <vxe-button v-if="row.status == 2" @click="updateStatus(row)" content="派送" size="mini"
+                            status="primary" round></vxe-button>
+                        <vxe-button v-if="row.status == 3" @click="updateStatus(row)" content="送达" size="mini"
+                            status="success" round></vxe-button>
+                        <vxe-button v-if="row.status == 4 || row.status == 5" @click="orderInfo(row.number)"
+                            content="详情" size="mini" status="warning" round>
                         </vxe-button>
                     </template>
                 </vxe-grid>
@@ -22,12 +24,10 @@
                     <template #default>
                         <vxe-table border show-header-overflow show-overflow :row-config="{ isHover: true }"
                             :data="tableData">
-                            <vxe-column field="oid" title="订单编号"></vxe-column>
-                            <vxe-column field="commodity.cname" title="商品名称"></vxe-column>
-                            <vxe-column field="commodity.cprice" title="商品价格" :formatter="formatterNum"></vxe-column>
-                            <vxe-column field="commodity.cbrand" title="品牌"></vxe-column>
-                            <vxe-column field="commodity.cCompany" title="单位"></vxe-column>
-                            <vxe-column field="count" title="数量"></vxe-column>
+                            <vxe-column field="id" title="订单编号"></vxe-column>
+                            <vxe-column field="name" title="商品名称"></vxe-column>
+                            <vxe-column field="amount" title="商品价格" :formatter="formatterNum"></vxe-column>
+                            <vxe-column field="number" title="数量"></vxe-column>
                         </vxe-table>
                     </template>
                 </vxe-modal>
@@ -40,8 +40,9 @@
 import axios from 'axios'
 import { reactive, ref } from 'vue'
 import { VxeGridProps, VxeGridInstance, VxeColumnPropTypes } from 'vxe-table'
-import { getAllOrder } from '@/api/orders'
+import { getAllOrder,update } from '@/api/orders'
 import XEUtils from 'xe-utils'
+
 
 const formatterNum: VxeColumnPropTypes.Formatter = ({ cellValue }) => {
     return cellValue ? `￥${XEUtils.commafy(XEUtils.toNumber(cellValue), {
@@ -52,6 +53,23 @@ const formatterNum: VxeColumnPropTypes.Formatter = ({ cellValue }) => {
 let model = ref(false)
 
 let tableData = ref([])
+const orderInfo = (orderId) => {
+    console.log(orderId);
+
+    model.value = true
+    axios.get('http://127.0.0.1:8080/api/orderDetail/findAll', {
+        params: {
+            orderId: orderId
+        }
+    })
+        .then(res => {
+            tableData.value = res.data.data
+        })
+}
+const updateStatus = (row) => {
+    console.log(row);
+    update(row)
+}
 const xGrid = ref<VxeGridInstance>()
 const gridOptions = reactive<VxeGridProps>({
     border: true,

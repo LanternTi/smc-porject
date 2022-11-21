@@ -7,3 +7,11 @@ export function getAllOrder(data?: any) {
         params: data
     })
 }
+
+//修改
+export function update(data?:any){
+    return request.put({
+        url:'orders/updateStatus',
+        params:data
+    })
+}
